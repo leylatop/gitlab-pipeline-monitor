@@ -659,13 +659,10 @@ class GitLabPipelineMonitor {
     const div = document.createElement('div');
     div.className = `pipeline-item bg-white rounded-lg border-l-4 p-3 cursor-pointer ${this.getStatusClass(pipeline.status)}`;
     
-    if (pipeline.status === 'failed') {
-      div.addEventListener('click', () => {
-        const pipelineUrl = `${this.settings.gitlabUrl}/${this.currentProjectId}/-/pipelines/${pipeline.id}`;
-        chrome.tabs.create({ url: pipelineUrl });
-      });
-      div.classList.add('hover:shadow-md');
-    }
+    div.addEventListener('click', () => {
+      const pipelineUrl = pipeline.web_url;
+      chrome.tabs.create({ url: pipelineUrl });
+    });
 
     const statusIcon = this.getStatusIcon(pipeline.status);
     const statusText = this.getStatusText(pipeline.status);
@@ -702,7 +699,7 @@ class GitLabPipelineMonitor {
         
         <div class="text-right text-xs text-gray-500 ml-3">
           ${timeInfo}
-          ${pipeline.status === 'failed' ? '<div class="mt-1"><i class="fas fa-external-link-alt"></i></div>' : ''}
+          <div class="mt-1"><i class="fas fa-external-link-alt"></i></div>
         </div>
       </div>
     `;
