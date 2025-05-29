@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitLab Pipeline Monitor</title>
+  <script src="./tailwind.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      width: 450px;
+      min-height: 300px;
+      max-height: 600px;
+    }
+
+    .pipeline-item {
+      transition: all 0.2s ease;
+    }
+
+    .pipeline-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-success {
+      @apply bg-green-100 border-green-300 text-green-800;
+    }
+
+    .status-failed {
+      @apply bg-red-100 border-red-300 text-red-800;
+    }
+
+    .status-running {
+      @apply bg-blue-100 border-blue-300 text-blue-800;
+    }
+
+    .status-pending {
+      @apply bg-yellow-100 border-yellow-300 text-yellow-800;
+    }
+
+    .status-canceled {
+      @apply bg-gray-100 border-gray-300 text-gray-800;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .help-text {
+      font-size: 0.7rem;
+      color: #6b7280;
+      line-height: 1.2;
+    }
+
+    .link-button {
+      color: #f97316;
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: inherit;
+      padding: 0;
+    }
+
+    .link-button:hover {
+      color: #ea580c;
+    }
+
+    .project-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-item.active {
+      border-color: #f97316;
+      background-color: #fff7ed;
+    }
+
+    .remove-btn {
+      color: #ef4444;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+    }
+
+    .remove-btn:hover {
+      background-color: #fee2e2;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+  <!-- 头部 -->
+  <div class="bg-white border-b border-gray-200 p-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fab fa-gitlab text-orange-500 text-xl"></i>
+        <h1 class="text-lg font-semibold text-gray-800">Pipeline 监控</h1>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="refreshBtn" class="text-gray-500 hover:text-gray-700 transition-colors">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <button id="settingsBtn" class="text-gray-500 hover:text-gray-700 transition-colors">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设置面板 -->
+  <div id="settingsPanel" class="hidden bg-white p-4 border-b border-gray-200">
+    <h3 class="text-sm font-medium text-gray-700 mb-3">配置设置</h3>
+    <div class="space-y-3">
+      <!-- GitLab 基础配置 -->
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">GitLab URL</label>
+        <input type="url" id="gitlabUrl" placeholder="https://gitlab.com"
+          class="w-full text-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+        <p class="help-text mt-1">输入您的 GitLab 实例地址</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">
+          Access Token
+          <button id="tokenHelpBtn" class="link-button ml-1" title="获取帮助">
+            <i class="fas fa-question-circle"></i>
+          </button>
+        </label>
+        <input type="password" id="accessToken" placeholder="glpat-xxxxxxxxxxxxxxxxxxxx"
+          class="w-full text-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+        <p class="help-text mt-1">
+          需要 <code>read_api</code> 和 <code>read_repository</code> 权限
+          <button id="createTokenBtn" class="link-button ml-2">
+            <i class="fas fa-external-link-alt mr-1"></i>创建 Token
+          </button>
+        </p>
+      </div>
+
+      <!-- 项目管理 -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-medium text-gray-600">监控项目</label>
+          <button id="addProjectBtn"
+            class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded transition-colors">
+            <i class="fas fa-plus mr-1"></i>添加项目
+          </button>
+        </div>
+
+        <!-- 添加项目表单 -->
+        <div id="addProjectForm" class="hidden space-y-2 p-3 border border-gray-200 rounded-md bg-gray-50 mb-2">
+          <div>
+            <input type="text" id="newProjectId" placeholder="输入 Project ID (如: 12345678)"
+              class="w-full text-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <p class="help-text mt-1">
+              在项目设置页面可以找到 Project ID
+              <button id="projectHelpBtn" class="link-button ml-1" title="获取帮助">
+                <i class="fas fa-question-circle"></i>
+              </button>
+            </p>
+          </div>
+          <div class="flex space-x-2">
+            <button id="confirmAddBtn"
+              class="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs py-1 px-2 rounded transition-colors">
+              确认添加
+            </button>
+            <button id="cancelAddBtn"
+              class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 text-xs py-1 px-2 rounded transition-colors">
+              取消
+            </button>
+          </div>
+        </div>
+
+        <!-- 项目列表 -->
+        <div id="projectList" class="space-y-1">
+          <!-- 项目将动态插入这里 -->
+        </div>
+      </div>
+
+      <!-- 按钮组 -->
+      <div class="flex space-x-2 pt-2 border-t border-gray-200">
+        <button id="saveSettingsBtn"
+          class="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium py-2 px-3 rounded-md transition-colors">
+          保存设置
+        </button>
+        <button id="cancelSettingsBtn"
+          class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 text-xs font-medium py-2 px-3 rounded-md transition-colors">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主内容区域 -->
+  <div id="pipelinePanel">
+    <!-- 项目选择器 -->
+    <div id="projectSelector" class="bg-white p-3 border-b border-gray-200">
+      <div class="flex items-center space-x-2">
+        <label class="text-xs font-medium text-gray-600">当前项目:</label>
+        <select id="currentProjectSelect"
+          class="flex-1 text-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <option value="">选择项目</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 搜索和过滤 -->
+    <div class="bg-white p-3 border-b border-gray-200">
+      <div class="flex space-x-2">
+        <input type="text" id="searchInput" placeholder="搜索分支或提交信息..."
+          class="flex-1 text-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+        <select id="statusFilter"
+          class="text-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <option value="">所有状态</option>
+          <option value="success">成功</option>
+          <option value="failed">失败</option>
+          <option value="running">运行中</option>
+          <option value="pending">等待中</option>
+          <option value="canceled">已取消</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- 加载状态 -->
+      <div id="loadingState" class="hidden flex items-center justify-center py-8">
+        <div class="text-center">
+          <i class="fas fa-circle-notch spinner text-orange-500 text-xl mb-2"></i>
+          <p class="text-sm text-gray-600">正在加载 Pipeline 数据...</p>
+        </div>
+      </div>
+
+      <!-- 错误状态 -->
+      <div id="errorState" class="hidden p-4 text-center">
+        <i class="fas fa-exclamation-triangle text-red-500 text-xl mb-2"></i>
+        <p class="text-sm text-red-600 mb-2" id="errorMessage">加载失败</p>
+        <button id="retryBtn" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+          重试
+        </button>
+      </div>
+
+      <!-- 未配置状态 -->
+      <div id="unconfiguredState" class="hidden p-4 text-center">
+        <i class="fas fa-cog text-gray-400 text-xl mb-2"></i>
+        <p class="text-sm text-gray-600 mb-2">请先配置 GitLab 项目信息</p>
+        <button id="configureBtn" class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded">
+          立即配置
+        </button>
+      </div>
+
+      <!-- Pipeline 列表 -->
+      <div id="pipelineList" class="p-3 space-y-3">
+        <!-- Pipeline 项目将动态插入这里 -->
+      </div>
+
+      <!-- 空状态 -->
+      <div id="emptyState" class="hidden p-4 text-center">
+        <i class="fas fa-inbox text-gray-400 text-xl mb-2"></i>
+        <p class="text-sm text-gray-600">没有找到 Pipeline</p>
+      </div>
+    </div>
+
+    <!-- 底部状态栏 -->
+    <div class="bg-gray-100 px-4 py-2 border-t border-gray-200">
+      <div class="flex items-center justify-between text-xs text-gray-600">
+        <span id="statusText">准备就绪</span>
+        <span id="lastUpdateTime"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
