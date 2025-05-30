@@ -652,24 +652,49 @@ class GitLabPipelineMonitor {
     this.filteredPipelines.forEach(pipeline => {
       const pipelineElement = this.createPipelineElement(pipeline);
       this.pipelineList.appendChild(pipelineElement);
+      this.addPipelineClickEvent(pipelineElement, pipeline);
     });
+  }
+
+  addPipelineClickEvent(pipelineElement, pipeline) {
+    pipelineElement.querySelector('.open-pipeline').addEventListener('click', (e) => {
+      const pipelineUrl = pipeline.web_url;
+      chrome.tabs.create({ url: pipelineUrl });
+    });
+
+    pipelineElement.querySelector('.copy-pipeline-ref').addEventListener('click', (e) => {
+      const pipelineUrl = pipeline.ref;
+      navigator.clipboard.writeText(pipelineUrl);
+      this.showCopySuccess(pipelineElement);
+    });
+
+    pipelineElement.querySelector('.copy-commit-title').addEventListener('click', (e) => {
+      const commitTitle = pipeline.commit.title;
+      navigator.clipboard.writeText(commitTitle);
+      this.showCopySuccess(pipelineElement);
+    });
+  }
+
+  showCopySuccess(pipelineElement) {
+    const successMessage = document.createElement('div');
+    successMessage.className = 'copy-success-message text-xs text-green-500 absolute top-[10px] right-[50%] translate-x-[50%] bg-gray-100 rounded-md px-2 py-1';
+    successMessage.textContent = '复制成功';
+    pipelineElement.appendChild(successMessage);
+    setTimeout(() => {
+      successMessage.remove();
+    }, 1000);
   }
 
   createPipelineElement(pipeline) {
     const div = document.createElement('div');
-    div.className = `pipeline-item bg-white rounded-lg border-l-4 p-3 cursor-pointer ${this.getStatusClass(pipeline.status)}`;
-    
-    div.addEventListener('click', () => {
-      const pipelineUrl = pipeline.web_url;
-      chrome.tabs.create({ url: pipelineUrl });
-    });
+    div.className = `pipeline-item bg-white rounded-lg border-l-4 p-3 ${this.getStatusClass(pipeline.status)}`;
 
     const statusIcon = this.getStatusIcon(pipeline.status);
     const statusText = this.getStatusText(pipeline.status);
     const timeInfo = this.formatTimeInfo(pipeline);
 
     div.innerHTML = `
-      <div class="flex items-start justify-between">
+      <div class="flex items-start justify-between relative">
         <div class="flex-1 min-w-0">
           <div class="flex items-center space-x-2 mb-2">
             <i class="${statusIcon}"></i>
@@ -679,15 +704,15 @@ class GitLabPipelineMonitor {
             </span>
           </div>
           
-          <div class="text-sm text-gray-700 mb-1">
+          <div class="copy-pipeline-ref text-sm text-gray-700 mb-1 cursor-pointer">
             <i class="fas fa-code-branch text-gray-400 mr-1"></i>
             <span class="font-mono">${pipeline.ref}</span>
           </div>
           
           ${pipeline.commit ? `
-            <div class="text-xs text-gray-600 mb-1 truncate" title="${pipeline.commit.message}">
+            <div class="copy-commit-title text-xs text-gray-600 mb-1 truncate cursor-pointer" title="${pipeline.commit.message}">
               <i class="fas fa-comment text-gray-400 mr-1"></i>
-              ${pipeline.commit.message}
+              ${pipeline.commit.title}
             </div>
           ` : ''}
           
@@ -697,9 +722,9 @@ class GitLabPipelineMonitor {
           </div>
         </div>
         
-        <div class="text-right text-xs text-gray-500 ml-3">
+        <div class="text-right text-xs text-gray-500 ml-3 cursor-pointer ">
           ${timeInfo}
-          <div class="mt-1"><i class="fas fa-external-link-alt"></i></div>
+          <div class="mt-1 open-pipeline"><i class="fas fa-external-link-alt"></i></div>
         </div>
       </div>
     `;
