@@ -1,230 +1,232 @@
 # GitLab Pipeline Monitor
 
-一个用于监控 GitLab Pipeline 状态的 Chrome 插件，支持多项目监控、实时通知和状态持久化。
+**English** | [中文](README.zh.md)
 
-## ✨ 主要功能
+A Chrome extension for monitoring GitLab Pipeline status with multi-project support, real-time notifications, and state persistence.
 
-### 核心功能
-- 📊 **多项目监控**: 同时监控多个 GitLab 项目的 Pipeline 状态
-- 🔄 **实时刷新**: 支持手动刷新和自动定时刷新（1-30分钟间隔）
-- 🔔 **桌面通知**: Pipeline 失败或完成时自动发送通知
-- 📱 **状态徽章**: 插件图标显示失败或运行中的 Pipeline 数量
-- 💾 **状态持久化**: 切换页面时保持插件状态，避免重新加载
+## ✨ Key Features
 
-### 界面功能
-- 🎨 **现代化界面**: 基于 Tailwind CSS 的美观界面
-- 🔍 **搜索过滤**: 支持按分支名、提交信息、用户名搜索
-- 📋 **状态过滤**: 按 Pipeline 状态过滤显示
-- 🔗 **快速跳转**: 失败的 Pipeline 可直接点击跳转到 GitLab
-- ❓ **内置帮助**: 提供 Access Token 创建指导和项目配置帮助
+### Core Features
+- 📊 **Multi-Project Monitoring**: Monitor multiple GitLab projects' pipeline status simultaneously
+- 🔄 **Real-time Refresh**: Support manual refresh and automatic scheduled refresh (1-30 minute intervals)
+- 🔔 **Desktop Notifications**: Automatic notifications when pipelines fail or complete
+- 📱 **Status Badge**: Extension icon displays count of failed or running pipelines
+- 💾 **State Persistence**: Maintain extension state when switching pages, avoiding reloads
 
-### 高级功能
-- ⏰ **自动刷新**: 可配置的后台自动检查和通知
-- 🎯 **智能通知**: 只在状态变化或新 Pipeline 失败时通知
-- 📈 **多状态支持**: 显示成功、失败、运行中、等待中、已取消状态
-- 🔄 **优雅降级**: 网络错误时的友好错误提示
+### Interface Features
+- 🎨 **Modern UI**: Beautiful interface based on Tailwind CSS
+- 🔍 **Search & Filter**: Search by branch name, commit message, username
+- 📋 **Status Filter**: Filter display by pipeline status
+- 🔗 **Quick Navigation**: Click on failed pipelines to jump directly to GitLab
+- ❓ **Built-in Help**: Provides guidance for Access Token creation and project configuration
 
-## 📦 安装使用
+### Advanced Features
+- ⏰ **Auto Refresh**: Configurable background automatic checking and notifications
+- 🎯 **Smart Notifications**: Only notify on status changes or new pipeline failures
+- 📈 **Multi-Status Support**: Display success, failed, running, pending, canceled states
+- 🔄 **Graceful Degradation**: Friendly error messages for network issues
 
-### 1. 下载插件
+## 📦 Installation & Usage
+
+### 1. Download Extension
 ```bash
 git clone https://github.com/leylatop/gitlab-pipeline-monitor.git
 cd gitlab-pipeline-monitor
 ```
 
-### 2. 安装到 Chrome
-1. 打开 Chrome 浏览器
-2. 地址栏输入 `chrome://extensions/`
-3. 开启右上角的「开发者模式」
-4. 点击「加载已解压的扩展程序」
-5. 选择插件目录
+### 2. Install to Chrome
+1. Open Chrome browser
+2. Enter `chrome://extensions/` in the address bar
+3. Enable "Developer mode" in the top right corner
+4. Click "Load unpacked"
+5. Select the extension directory
 
-### 3. 配置插件
+### 3. Configure Extension
 
-#### 第一步：基础配置
-1. 点击插件图标打开界面
-2. 点击右上角齿轮图标进入设置
-3. 填写以下信息：
-   - **GitLab URL**: 您的 GitLab 实例地址（如：`https://gitlab.com`）
-   - **Access Token**: 您的个人访问令牌
+#### Step 1: Basic Configuration
+1. Click the extension icon to open the interface
+2. Click the gear icon in the top right to enter settings
+3. Fill in the following information:
+   - **GitLab URL**: Your GitLab instance address (e.g., `https://gitlab.com`)
+   - **Access Token**: Your personal access token
 
-#### 第二步：获取 Access Token
-插件提供了获取 Access Token 的完整指导：
+#### Step 2: Get Access Token
+The extension provides complete guidance for obtaining Access Token:
 
-1. 在设置页面点击 Access Token 旁边的帮助按钮 ❓
-2. 或点击「创建 Token」链接直接跳转到 GitLab
-3. 按照提示创建具有以下权限的 Token：
-   - `read_api` - 读取 API 权限
-   - `read_repository` - 读取仓库权限
+1. Click the help button ❓ next to Access Token in settings
+2. Or click the "Create Token" link to jump directly to GitLab
+3. Create a token with the following permissions as instructed:
+   - `read_api` - Read API permissions
+   - `read_repository` - Read repository permissions
 
-#### 第三步：添加监控项目
-1. 在设置页面的「监控项目」部分点击「添加项目」
-2. 输入项目的 Project ID
-3. 点击「确认添加」
-4. 可添加多个项目进行监控
+#### Step 3: Add Monitoring Projects
+1. Click "Add Project" in the "Monitoring Projects" section of settings
+2. Enter the project's Project ID
+3. Click "Confirm Add"
+4. You can add multiple projects for monitoring
 
-#### 第四步：配置自动刷新（可选）
-- 勾选「启用自动刷新」
-- 选择刷新间隔（1-30分钟）
-- 插件将在后台定期检查 Pipeline 状态
+#### Step 4: Configure Auto Refresh (Optional)
+- Check "Enable Auto Refresh"
+- Select refresh interval (1-30 minutes)
+- The extension will periodically check pipeline status in the background
 
-## 🎯 功能详解
+## 🎯 Feature Details
 
-### 项目管理
-- **多项目支持**: 可以同时监控多个 GitLab 项目
-- **项目切换**: 通过下拉菜单快速切换查看不同项目
-- **动态添加**: 运行时可以添加或移除监控项目
-- **项目验证**: 添加项目时会验证访问权限
+### Project Management
+- **Multi-Project Support**: Monitor multiple GitLab projects simultaneously
+- **Project Switching**: Quick switching between different projects via dropdown menu
+- **Dynamic Addition**: Add or remove monitoring projects at runtime
+- **Project Validation**: Verify access permissions when adding projects
 
-### 状态显示
-| 状态 | 显示 | 说明 |
-|------|------|------|
-| ✅ 成功 | 绿色边框 | Pipeline 执行成功 |
-| ❌ 失败 | 红色边框 | Pipeline 执行失败，可点击跳转 |
-| 🔄 运行中 | 蓝色边框 | Pipeline 正在执行 |
-| ⏳ 等待中 | 黄色边框 | Pipeline 等待执行 |
-| ⏹️ 已取消 | 灰色边框 | Pipeline 被用户取消 |
+### Status Display
+| Status | Display | Description |
+|--------|---------|-------------|
+| ✅ Success | Green border | Pipeline executed successfully |
+| ❌ Failed | Red border | Pipeline execution failed, clickable to jump |
+| 🔄 Running | Blue border | Pipeline is executing |
+| ⏳ Pending | Yellow border | Pipeline waiting for execution |
+| ⏹️ Canceled | Gray border | Pipeline canceled by user |
 
-### 通知机制
-- **失败通知**: 新 Pipeline 失败时立即通知
-- **完成通知**: 运行中的 Pipeline 完成时通知
-- **状态变化**: Pipeline 状态发生变化时通知
-- **避免重复**: 相同状态不会重复通知
+### Notification Mechanism
+- **Failure Notifications**: Immediate notification when new pipeline fails
+- **Completion Notifications**: Notify when running pipeline completes
+- **Status Changes**: Notify when pipeline status changes
+- **Avoid Duplicates**: Same status won't be notified repeatedly
 
-### 状态持久化
-- **跨页面保持**: 切换浏览器标签页时保持插件状态
-- **搜索保持**: 搜索条件和过滤设置会被保存
-- **项目记忆**: 记住当前选择的项目
-- **设置同步**: 设置更改实时同步到后台
+### State Persistence
+- **Cross-Page Maintenance**: Keep extension state when switching browser tabs
+- **Search Persistence**: Search conditions and filter settings are saved
+- **Project Memory**: Remember currently selected project
+- **Settings Sync**: Settings changes sync to background in real-time
 
-## 🔧 配置说明
+## 🔧 Configuration Instructions
 
-### GitLab URL 格式
-- 公共 GitLab: `https://gitlab.com`
-- 私有实例: `https://gitlab.company.com`
-- 带端口: `https://gitlab.company.com:8080`
+### GitLab URL Format
+- Public GitLab: `https://gitlab.com`
+- Private instance: `https://gitlab.company.com`
+- With port: `https://gitlab.company.com:8080`
 
-### Project ID 获取方法
-1. 登录 GitLab 并进入项目设置页面
-2. 在左侧菜单选择 "General"
-3. 在 "Project ID" 字段中找到 Project ID
+### How to Get Project ID
+1. Log in to GitLab and enter project settings page
+2. Select "General" from the left menu
+3. Find the Project ID in the "Project ID" field
 
-### Access Token 权限
-插件需要以下最小权限：
-- `read_api`: 读取 API 数据
-- `read_repository`: 读取仓库信息（用于获取提交详情）
+### Access Token Permissions
+The extension requires the following minimum permissions:
+- `read_api`: Read API data
+- `read_repository`: Read repository information (for getting commit details)
 
-## 📋 使用技巧
+## 📋 Usage Tips
 
-### 快捷键
-- `Ctrl/Cmd + R`: 刷新 Pipeline 列表
-- `Esc`: 关闭设置面板或取消操作
+### Keyboard Shortcuts
+- `Ctrl/Cmd + R`: Refresh pipeline list
+- `Esc`: Close settings panel or cancel operation
 
-### 搜索技巧
-- 支持搜索分支名：`feature/login`
-- 支持搜索提交信息：`fix bug`
-- 支持搜索用户名：`张三`
-- 支持组合搜索：输入多个关键词
+### Search Tips
+- Search by branch name: `feature/login`
+- Search by commit message: `fix bug`
+- Search by username: `John`
+- Combined search: Enter multiple keywords
 
-### 过滤技巧
-- 使用状态过滤器快速查看特定状态的 Pipeline
-- 结合搜索和过滤缩小范围
-- 清空搜索框显示所有结果
+### Filter Tips
+- Use status filters to quickly view pipelines of specific status
+- Combine search and filter to narrow down results
+- Clear search box to show all results
 
-## 🔒 隐私和安全
+## 🔒 Privacy & Security
 
-### 数据存储
-- 所有配置信息存储在本地浏览器中
-- 不会上传任何数据到第三方服务器
-- Access Token 使用浏览器安全存储
+### Data Storage
+- All configuration information is stored locally in the browser
+- No data is uploaded to third-party servers
+- Access Token uses browser secure storage
 
-### 权限需求
-插件请求的权限及用途：
-- `storage`: 保存配置信息和状态
-- `alarms`: 实现自动刷新功能
-- `notifications`: 发送桌面通知
-- `tabs`: 在失败时打开 GitLab 页面
+### Permission Requirements
+Permissions requested by the extension and their purposes:
+- `storage`: Save configuration information and state
+- `alarms`: Implement auto-refresh functionality
+- `notifications`: Send desktop notifications
+- `tabs`: Open GitLab pages when failures occur
 
-## 🐛 故障排除
+## 🐛 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-#### 1. 无法加载 Pipeline 数据
-**可能原因**：
-- GitLab URL 不正确
-- Access Token 无效或权限不足
-- 网络连接问题
-- Project ID 不存在或无访问权限
+#### 1. Cannot Load Pipeline Data
+**Possible Causes**:
+- Incorrect GitLab URL
+- Invalid Access Token or insufficient permissions
+- Network connection issues
+- Project ID doesn't exist or no access permissions
 
-**解决方案**：
-1. 检查 GitLab URL 是否能正常访问
-2. 重新生成 Access Token 并确保权限正确
-3. 验证 Project ID 是否正确
-4. 检查网络连接
+**Solutions**:
+1. Check if GitLab URL is accessible
+2. Regenerate Access Token and ensure correct permissions
+3. Verify Project ID is correct
+4. Check network connection
 
-#### 2. 通知不工作
-**可能原因**：
-- 浏览器通知权限被禁用
-- 自动刷新未启用
-- 后台脚本出错
+#### 2. Notifications Not Working
+**Possible Causes**:
+- Browser notification permissions disabled
+- Auto refresh not enabled
+- Background script error
 
-**解决方案**：
-1. 检查浏览器通知权限设置
-2. 启用自动刷新功能
-3. 重新安装插件
+**Solutions**:
+1. Check browser notification permission settings
+2. Enable auto refresh functionality
+3. Reinstall the extension
 
-#### 3. 项目添加失败
-**可能原因**：
-- Project ID 格式错误（应为纯数字）
-- 无访问权限
-- 网络连接问题
+#### 3. Project Addition Failed
+**Possible Causes**:
+- Incorrect Project ID format (should be numbers only)
+- No access permissions
+- Network connection issues
 
-**解决方案**：
-1. 确认 Project ID 为纯数字格式
-2. 检查是否有项目访问权限
-3. 尝试手动访问项目 API
+**Solutions**:
+1. Confirm Project ID is in numeric format only
+2. Check if you have project access permissions
+3. Try manually accessing project API
 
-#### 4. 界面显示异常
-**可能原因**：
-- CSS 文件加载失败
-- 浏览器兼容性问题
+#### 4. Interface Display Issues
+**Possible Causes**:
+- CSS file loading failed
+- Browser compatibility issues
 
-**解决方案**：
-1. 刷新插件或重新加载
-2. 检查浏览器版本（推荐 Chrome 88+）
-3. 清除浏览器缓存
+**Solutions**:
+1. Refresh extension or reload
+2. Check browser version (Chrome 88+ recommended)
+3. Clear browser cache
 
-### 调试模式
-1. 打开 Chrome 开发者工具 (F12)
-2. 切换到 Console 标签
-3. 查看错误信息和调试日志
-4. 如有问题请提供错误信息
+### Debug Mode
+1. Open Chrome Developer Tools (F12)
+2. Switch to Console tab
+3. View error messages and debug logs
+4. Please provide error information if issues persist
 
-## 🤝 贡献指南
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
 
-### 开发环境
-1. 克隆项目到本地
-2. 在 Chrome 中加载开发版本
-3. 修改代码后重新加载插件测试
+### Development Environment
+1. Clone project locally
+2. Load development version in Chrome
+3. Test after modifying code by reloading extension
 
-### 提交规范
-- 使用有意义的提交信息
-- 遵循现有代码风格
-- 添加必要的注释
-- 测试新功能的兼容性
+### Submission Guidelines
+- Use meaningful commit messages
+- Follow existing code style
+- Add necessary comments
+- Test new feature compatibility
 
-## 📄 许可证
+## 📄 License
 
-本项目基于 MIT 许可证开源，详见 [LICENSE](LICENSE) 文件。
+This project is open source under the MIT License. See [LICENSE](LICENSE) file for details.
 
-## 📞 支持
+## 📞 Support
 
-如有问题或建议，请：
-1. 提交 GitHub Issue
-2. 发送邮件至：[leyla_qiao@163.com](mailto:leyla_qiao@163.com)
-3. 查看 [QUICK_START.md](QUICK_START.md) 了解更多信息
+For questions or suggestions, please:
+1. Submit GitHub Issue
+2. Send email to: [leyla_qiao@163.com](mailto:leyla_qiao@163.com)
+3. Check [QUICK_START.md](QUICK_START.md) for more information
 
 ---
 
